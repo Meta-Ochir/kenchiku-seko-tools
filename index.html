@@ -81,7 +81,7 @@ h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
 <!-- Lottery Page -->
 <div id="lottery" class="page active">
   <h1>発表順くじ引き</h1>
-  <p class="subtitle">建築施工（2026年度前期）- 12班の発表順を抽選で決定</p>
+  <p class="subtitle">建築施工（2026年度前期）- 10班の発表順を抽選で決定</p>
 
   <div class="lottery-container">
     <div class="slot-machine">
@@ -132,86 +132,82 @@ h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
 </div>
 
 <script>
-// Group data (12 groups)
+// Group data (10 groups)
 const groups = {
   1: {members: [
     {id: "2315012", kanji: "小島　千怜", kana: "ｵｼﾞﾏ ﾁｻﾄ"},
     {id: "2315038", kanji: "増田　和人", kana: "ﾏｽﾀﾞ ｶｽﾞﾄ"},
     {id: "2415001", kanji: "葭田　奏斗", kana: "ｱｼﾀﾞ ｶﾅﾄ"},
     {id: "2415002", kanji: "渥美　太雅", kana: "ｱﾂﾐ ﾀｲｶﾞ"},
-    {id: "2415004", kanji: "泉　凪紗", kana: "ｲｽﾞﾐ ﾅｷﾞｻ"}
+    {id: "2415004", kanji: "泉　凪紗", kana: "ｲｽﾞﾐ ﾅｷﾞｻ"},
+    {id: "2415007", kanji: "伊藤　優希", kana: "ｲﾄｳ ﾕｳｷ"}
   ]},
   2: {members: [
-    {id: "2415007", kanji: "伊藤　優希", kana: "ｲﾄｳ ﾕｳｷ"},
     {id: "2415008", kanji: "伊藤　吏都", kana: "ｲﾄｳ ﾘﾂ"},
     {id: "2415009", kanji: "今井　理人", kana: "ｲﾏｲ ﾏｻﾄ"},
     {id: "2415010", kanji: "植田　碧羽", kana: "ｳｴﾀ ｱｵﾊﾞ"},
-    {id: "2415011", kanji: "植山　頼世", kana: "ｳｴﾔﾏ ﾗｲｾ"}
+    {id: "2415011", kanji: "植山　頼世", kana: "ｳｴﾔﾏ ﾗｲｾ"},
+    {id: "2415013", kanji: "大石　育実", kana: "ｵｵｲｼ ｲｸﾐ"},
+    {id: "2415014", kanji: "大石　悠月", kana: "ｵｵｲｼ ﾕﾂﾞｷ"}
   ]},
   3: {members: [
-    {id: "2415013", kanji: "大石　育実", kana: "ｵｵｲｼ ｲｸﾐ"},
-    {id: "2415014", kanji: "大石　悠月", kana: "ｵｵｲｼ ﾕﾂﾞｷ"},
     {id: "2415015", kanji: "大石　椋太", kana: "ｵｵｲｼ ﾘｮｳﾀ"},
     {id: "2415016", kanji: "太田　七瑚", kana: "ｵｵﾀ ﾅｺ"},
-    {id: "2415017", kanji: "大野　瑞芭", kana: "ｵｵﾉ ﾐｽﾞﾊ"}
-  ]},
-  4: {members: [
+    {id: "2415017", kanji: "大野　瑞芭", kana: "ｵｵﾉ ﾐｽﾞﾊ"},
     {id: "2415018", kanji: "勝亦　仁南", kana: "ｶﾂﾏﾀ ﾆﾅ"},
     {id: "2415019", kanji: "川畑　美友", kana: "ｶﾜﾊﾞﾀ ﾐﾕ"},
-    {id: "2415020", kanji: "喜久川　幸凛", kana: "ｷｸｶﾞﾜ ｺｳﾘﾝ"},
-    {id: "2415024", kanji: "杉山　秀響", kana: "ｽｷﾞﾔﾏ ｼｭｳﾄ"},
-    {id: "2415025", kanji: "杉山　凌大", kana: "ｽｷﾞﾔﾏ ﾘｮｳﾀ"}
+    {id: "2415020", kanji: "喜久川　幸凛", kana: "ｷｸｶﾞﾜ ｺｳﾘﾝ"}
   ]},
-  5: {members: [
+  4: {members: [
+    {id: "2415024", kanji: "杉山　秀響", kana: "ｽｷﾞﾔﾏ ｼｭｳﾄ"},
+    {id: "2415025", kanji: "杉山　凌大", kana: "ｽｷﾞﾔﾏ ﾘｮｳﾀ"},
     {id: "2415026", kanji: "鈴木　遥紀", kana: "ｽｽﾞｷ ﾊﾙｷ"},
     {id: "2415027", kanji: "鈴木　優奈", kana: "ｽｽﾞｷ ﾕｳﾅ"},
     {id: "2415028", kanji: "鈴木　稜河", kana: "ｽｽﾞｷ ﾘｮｳｶﾞ"},
-    {id: "2415029", kanji: "高岡　力", kana: "ﾀｶｵｶ ﾘｷ"},
-    {id: "2415030", kanji: "髙野　剣矢", kana: "ﾀｶﾉ ｹﾝﾔ"}
+    {id: "2415029", kanji: "高岡　力", kana: "ﾀｶｵｶ ﾘｷ"}
   ]},
-  6: {members: [
+  5: {members: [
+    {id: "2415030", kanji: "髙野　剣矢", kana: "ﾀｶﾉ ｹﾝﾔ"},
     {id: "2415031", kanji: "竹内　貴紀", kana: "ﾀｹｳﾁ ﾀｶﾉﾘ"},
     {id: "2415032", kanji: "田澤　理夏", kana: "ﾀｻﾞﾜ ﾘｶ"},
     {id: "2415033", kanji: "橘　寧々", kana: "ﾀﾁﾊﾞﾅ ﾈﾈ"},
     {id: "2415034", kanji: "田中　琢満", kana: "ﾀﾅｶ ﾀｸﾐ"},
     {id: "2415035", kanji: "廣瀬　千恵", kana: "ﾋﾛｾ ﾁｴ"}
   ]},
-  7: {members: [
+  6: {members: [
     {id: "2415039", kanji: "寺田　和真", kana: "ﾃﾗﾀﾞ ｶｽﾞﾏ"},
     {id: "2415040", kanji: "戸塚　結依", kana: "ﾄﾂﾞｶ ﾕｲ"},
     {id: "2415041", kanji: "長沼　佳那", kana: "ﾅｶﾞﾇﾏ ｶﾅ"},
     {id: "2415042", kanji: "名倉　一輝", kana: "ﾅｸﾞﾗ ｶｽﾞｷ"},
-    {id: "2415043", kanji: "成瀬　玲那", kana: "ﾅﾙｾ ﾚﾅ"}
+    {id: "2415043", kanji: "成瀬　玲那", kana: "ﾅﾙｾ ﾚﾅ"},
+    {id: "2415044", kanji: "西尾　藍花", kana: "ﾆｼｵ ｱｲｶ"}
   ]},
-  8: {members: [
-    {id: "2415044", kanji: "西尾　藍花", kana: "ﾆｼｵ ｱｲｶ"},
+  7: {members: [
     {id: "2415045", kanji: "西村　桜", kana: "ﾆｼﾑﾗ ｻｸﾗ"},
     {id: "2415046", kanji: "野尻　隼", kana: "ﾉｼﾞﾘ ｼｭﾝ"},
     {id: "2415047", kanji: "野村　遙", kana: "ﾉﾑﾗ ﾊﾙ"},
-    {id: "2415048", kanji: "春山　稜登", kana: "ﾊﾙﾔﾏ ﾘｮｳﾄ"}
-  ]},
-  9: {members: [
+    {id: "2415048", kanji: "春山　稜登", kana: "ﾊﾙﾔﾏ ﾘｮｳﾄ"},
     {id: "2415049", kanji: "蛭川　太暉", kana: "ﾋﾙｶﾜ ﾀｲｷ"},
-    {id: "2415050", kanji: "藤江　倖大", kana: "ﾌｼﾞｴ ｺｳﾀ"},
+    {id: "2415050", kanji: "藤江　倖大", kana: "ﾌｼﾞｴ ｺｳﾀ"}
+  ]},
+  8: {members: [
     {id: "2415051", kanji: "布施　佑斗", kana: "ﾌｾ ﾕｳﾄ"},
     {id: "2415052", kanji: "古橋　美優", kana: "ﾌﾙﾊｼ ﾐﾕ"},
-    {id: "2415054", kanji: "松浦　悠貴", kana: "ﾏﾂｳﾗ ﾊﾙｷ"}
-  ]},
-  10: {members: [
+    {id: "2415054", kanji: "松浦　悠貴", kana: "ﾏﾂｳﾗ ﾊﾙｷ"},
     {id: "2415055", kanji: "松下　快斗", kana: "ﾏﾂｼﾀ ｶｲﾄ"},
     {id: "2415057", kanji: "水口　穂珂", kana: "ﾐｽﾞｸﾞﾁ ﾎﾉｶ"},
-    {id: "2415058", kanji: "水野　舟馬", kana: "ﾐｽﾞﾉ ｼｭｳﾏ"},
-    {id: "2415059", kanji: "三好　諒青", kana: "ﾐﾖｼ ﾘｮｳｾｲ"},
-    {id: "2415060", kanji: "宗像　美咲希", kana: "ﾑﾅｶﾀ ﾐｻｷ"}
+    {id: "2415058", kanji: "水野　舟馬", kana: "ﾐｽﾞﾉ ｼｭｳﾏ"}
   ]},
-  11: {members: [
+  9: {members: [
+    {id: "2415059", kanji: "三好　諒青", kana: "ﾐﾖｼ ﾘｮｳｾｲ"},
+    {id: "2415060", kanji: "宗像　美咲希", kana: "ﾑﾅｶﾀ ﾐｻｷ"},
     {id: "2415061", kanji: "村松　愛咲", kana: "ﾑﾗﾏﾂ ｱｲｻ"},
     {id: "2415062", kanji: "安本　桜太郎", kana: "ﾔｽﾓﾄ ｵｳﾀﾛｳ"},
     {id: "2415063", kanji: "山口　來輝", kana: "ﾔﾏｸﾞﾁ ﾗｲｷ"},
-    {id: "2415065", kanji: "山中　陽", kana: "ﾔﾏﾅｶ ﾋﾅﾀ"},
-    {id: "2415066", kanji: "山本　佳奈", kana: "ﾔﾏﾓﾄ ｶﾅ"}
+    {id: "2415065", kanji: "山中　陽", kana: "ﾔﾏﾅｶ ﾋﾅﾀ"}
   ]},
-  12: {members: [
+  10: {members: [
+    {id: "2415066", kanji: "山本　佳奈", kana: "ﾔﾏﾓﾄ ｶﾅ"},
     {id: "2415068", kanji: "吉澤　紗穂", kana: "ﾖｼｻﾞﾜ ｻﾎ"},
     {id: "2415069", kanji: "吉田　莉彩", kana: "ﾖｼﾀﾞ ﾘｻ"},
     {id: "2415070", kanji: "渡邉　海晴", kana: "ﾜﾀﾅﾍﾞ ｶｲｾｲ"},
@@ -284,9 +280,9 @@ const students = [
   {id: "2415072", kanji: "HSU MYINT MYAT PHYOE", kana: "ｽ ﾐｯ ﾐｬ ﾋﾟｮｰ"}
 ];
 
-// Presentation rounds (12 groups → 12 rounds, starting from 第3回)
-const roundNames = ["第3回","第4回","第5回","第6回","第7回","第8回","第9回","第10回","第11回","第12回","第13回","第14回"];
-const NUM_GROUPS = 12;
+// Presentation rounds (10 groups → 10 rounds, starting from 第3回)
+const roundNames = ["第3回","第4回","第5回","第6回","第7回","第8回","第9回","第10回","第11回","第12回"];
+const NUM_GROUPS = 10;
 
 // --- Tab switching ---
 function switchTab(tab) {
