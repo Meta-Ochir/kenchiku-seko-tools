@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>建築施工 - 講義ツール</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+.tabs { display: flex; justify-content: center; gap: 8px; padding: 20px; background: #1e293b; }
+.tab { padding: 12px 32px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; background: #334155; color: #94a3b8; transition: all 0.3s; }
+.tab.active { background: #f59e0b; color: #0f172a; }
+.tab:hover { background: #475569; }
+.tab.active:hover { background: #d97706; }
+
+.page { display: none; padding: 30px 20px; max-width: 900px; margin: 0 auto; }
+.page.active { display: block; }
+
+h1 { text-align: center; font-size: 28px; margin-bottom: 8px; }
+.subtitle { text-align: center; color: #94a3b8; margin-bottom: 30px; font-size: 14px; }
+
+/* Lottery page */
+.lottery-container { text-align: center; }
+.slot-machine { background: #1e293b; border-radius: 16px; padding: 40px; margin: 20px auto; max-width: 500px; border: 2px solid #334155; }
+.slot-display { font-size: 80px; font-weight: bold; color: #f59e0b; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+.slot-label { font-size: 20px; color: #94a3b8; margin-top: 10px; }
+
+.btn { padding: 16px 48px; border: none; border-radius: 12px; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin: 10px; }
+.btn-primary { background: #f59e0b; color: #0f172a; }
+.btn-primary:hover { background: #d97706; transform: scale(1.05); }
+.btn-primary:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; transform: none; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-danger:hover { background: #dc2626; }
+.btn-secondary { background: #334155; color: #e2e8f0; }
+.btn-secondary:hover { background: #475569; }
+
+.result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 30px; }
+.result-card { background: #1e293b; border-radius: 12px; padding: 16px; border: 2px solid #334155; text-align: center; transition: all 0.3s; }
+.result-card.filled { border-color: #f59e0b; background: #1c1708; }
+.result-card.current { border-color: #fbbf24; background: #422006; animation: pulse 1s infinite; }
+.result-order { font-size: 14px; color: #94a3b8; }
+.result-group { font-size: 24px; font-weight: bold; color: #f59e0b; margin: 4px 0; }
+.result-round { font-size: 14px; color: #60a5fa; }
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+/* Group members modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: #1e293b; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; border: 2px solid #f59e0b; }
+.modal h3 { font-size: 22px; margin-bottom: 16px; color: #f59e0b; }
+.modal-member { padding: 8px 0; border-bottom: 1px solid #334155; display: flex; gap: 12px; }
+.modal-member:last-child { border-bottom: none; }
+.modal-close { margin-top: 16px; width: 100%; }
+
+/* Random student page */
+.random-container { text-align: center; }
+.student-card { background: #1e293b; border-radius: 16px; padding: 50px 40px; margin: 30px auto; max-width: 600px; border: 2px solid #334155; min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.5s; }
+.student-card.reveal { border-color: #10b981; background: #064e3b; }
+.student-card.spinning { border-color: #f59e0b; }
+.student-number { font-size: 28px; color: #60a5fa; margin-bottom: 16px; letter-spacing: 4px; }
+.student-kanji { font-size: 56px; font-weight: bold; color: white; margin-bottom: 12px; }
+.student-kana { font-size: 22px; color: #94a3b8; }
+.student-placeholder { font-size: 24px; color: #475569; }
+
+.history-section { margin-top: 40px; }
+.history-title { font-size: 18px; color: #94a3b8; margin-bottom: 12px; }
+.history-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.history-tag { background: #334155; padding: 6px 12px; border-radius: 20px; font-size: 13px; color: #94a3b8; }
+.remaining-count { margin-top: 16px; font-size: 16px; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('lottery')">発表順くじ引き</button>
+  <button class="tab" onclick="switchTab('random')">ランダム指名</button>
+</div>
+
+<!-- Lottery Page -->
+<div id="lottery" class="page active">
+  <h1>発表順くじ引き</h1>
+  <p class="subtitle">建築施工（2026年度前期）- 12班の発表順を抽選で決定</p>
+
+  <div class="lottery-container">
+    <div class="slot-machine">
+      <div class="slot-display" id="slotDisplay">?</div>
+      <div class="slot-label" id="slotLabel">ボタンを押して抽選開始</div>
+    </div>
+
+    <div>
+      <button class="btn btn-primary" id="drawBtn" onclick="drawNext()">くじを引く</button>
+      <button class="btn btn-danger" onclick="resetLottery()">リセット</button>
+    </div>
+
+    <div class="result-grid" id="resultGrid"></div>
+  </div>
+</div>
+
+<!-- Random Student Page -->
+<div id="random" class="page">
+  <h1>ランダム指名</h1>
+  <p class="subtitle">ボタンを押すと名簿からランダムに学生を表示します</p>
+
+  <div class="random-container">
+    <div class="student-card" id="studentCard">
+      <div class="student-placeholder">ボタンを押してください</div>
+    </div>
+
+    <div>
+      <button class="btn btn-primary" onclick="pickStudent()">指名する</button>
+      <button class="btn btn-secondary" onclick="resetHistory()">履歴クリア</button>
+    </div>
+
+    <div class="remaining-count" id="remainingCount"></div>
+
+    <div class="history-section" id="historySection" style="display:none">
+      <div class="history-title">指名済み</div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Group member modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <div id="modalMembers"></div>
+    <button class="btn btn-secondary modal-close" onclick="document.getElementById('modal').classList.remove('show')">閉じる</button>
+  </div>
+</div>
+
+<script>
+// Group data (12 groups)
+const groups = {
+  1: {members: [
+    {id: "2315012", kanji: "小島　千怜", kana: "ｵｼﾞﾏ ﾁｻﾄ"},
+    {id: "2315038", kanji: "増田　和人", kana: "ﾏｽﾀﾞ ｶｽﾞﾄ"},
+    {id: "2415001", kanji: "葭田　奏斗", kana: "ｱｼﾀﾞ ｶﾅﾄ"},
+    {id: "2415002", kanji: "渥美　太雅", kana: "ｱﾂﾐ ﾀｲｶﾞ"},
+    {id: "2415004", kanji: "泉　凪紗", kana: "ｲｽﾞﾐ ﾅｷﾞｻ"}
+  ]},
+  2: {members: [
+    {id: "2415007", kanji: "伊藤　優希", kana: "ｲﾄｳ ﾕｳｷ"},
+    {id: "2415008", kanji: "伊藤　吏都", kana: "ｲﾄｳ ﾘﾂ"},
+    {id: "2415009", kanji: "今井　理人", kana: "ｲﾏｲ ﾏｻﾄ"},
+    {id: "2415010", kanji: "植田　碧羽", kana: "ｳｴﾀ ｱｵﾊﾞ"},
+    {id: "2415011", kanji: "植山　頼世", kana: "ｳｴﾔﾏ ﾗｲｾ"}
+  ]},
+  3: {members: [
+    {id: "2415013", kanji: "大石　育実", kana: "ｵｵｲｼ ｲｸﾐ"},
+    {id: "2415014", kanji: "大石　悠月", kana: "ｵｵｲｼ ﾕﾂﾞｷ"},
+    {id: "2415015", kanji: "大石　椋太", kana: "ｵｵｲｼ ﾘｮｳﾀ"},
+    {id: "2415016", kanji: "太田　七瑚", kana: "ｵｵﾀ ﾅｺ"},
+    {id: "2415017", kanji: "大野　瑞芭", kana: "ｵｵﾉ ﾐｽﾞﾊ"}
+  ]},
+  4: {members: [
+    {id: "2415018", kanji: "勝亦　仁南", kana: "ｶﾂﾏﾀ ﾆﾅ"},
+    {id: "2415019", kanji: "川畑　美友", kana: "ｶﾜﾊﾞﾀ ﾐﾕ"},
+    {id: "2415020", kanji: "喜久川　幸凛", kana: "ｷｸｶﾞﾜ ｺｳﾘﾝ"},
+    {id: "2415024", kanji: "杉山　秀響", kana: "ｽｷﾞﾔﾏ ｼｭｳﾄ"},
+    {id: "2415025", kanji: "杉山　凌大", kana: "ｽｷﾞﾔﾏ ﾘｮｳﾀ"}
+  ]},
+  5: {members: [
+    {id: "2415026", kanji: "鈴木　遥紀", kana: "ｽｽﾞｷ ﾊﾙｷ"},
+    {id: "2415027", kanji: "鈴木　優奈", kana: "ｽｽﾞｷ ﾕｳﾅ"},
+    {id: "2415028", kanji: "鈴木　稜河", kana: "ｽｽﾞｷ ﾘｮｳｶﾞ"},
+    {id: "2415029", kanji: "高岡　力", kana: "ﾀｶｵｶ ﾘｷ"},
+    {id: "2415030", kanji: "髙野　剣矢", kana: "ﾀｶﾉ ｹﾝﾔ"}
+  ]},
+  6: {members: [
+    {id: "2415031", kanji: "竹内　貴紀", kana: "ﾀｹｳﾁ ﾀｶﾉﾘ"},
+    {id: "2415032", kanji: "田澤　理夏", kana: "ﾀｻﾞﾜ ﾘｶ"},
+    {id: "2415033", kanji: "橘　寧々", kana: "ﾀﾁﾊﾞﾅ ﾈﾈ"},
+    {id: "2415034", kanji: "田中　琢満", kana: "ﾀﾅｶ ﾀｸﾐ"},
+    {id: "2415035", kanji: "廣瀬　千恵", kana: "ﾋﾛｾ ﾁｴ"}
+  ]},
+  7: {members: [
+    {id: "2415039", kanji: "寺田　和真", kana: "ﾃﾗﾀﾞ ｶｽﾞﾏ"},
+    {id: "2415040", kanji: "戸塚　結依", kana: "ﾄﾂﾞｶ ﾕｲ"},
+    {id: "2415041", kanji: "長沼　佳那", kana: "ﾅｶﾞﾇﾏ ｶﾅ"},
+    {id: "2415042", kanji: "名倉　一輝", kana: "ﾅｸﾞﾗ ｶｽﾞｷ"},
+    {id: "2415043", kanji: "成瀬　玲那", kana: "ﾅﾙｾ ﾚﾅ"}
+  ]},
+  8: {members: [
+    {id: "2415044", kanji: "西尾　藍花", kana: "ﾆｼｵ ｱｲｶ"},
+    {id: "2415045", kanji: "西村　桜", kana: "ﾆｼﾑﾗ ｻｸﾗ"},
+    {id: "2415046", kanji: "野尻　隼", kana: "ﾉｼﾞﾘ ｼｭﾝ"},
+    {id: "2415047", kanji: "野村　遙", kana: "ﾉﾑﾗ ﾊﾙ"},
+    {id: "2415048", kanji: "春山　稜登", kana: "ﾊﾙﾔﾏ ﾘｮｳﾄ"}
+  ]},
+  9: {members: [
+    {id: "2415049", kanji: "蛭川　太暉", kana: "ﾋﾙｶﾜ ﾀｲｷ"},
+    {id: "2415050", kanji: "藤江　倖大", kana: "ﾌｼﾞｴ ｺｳﾀ"},
+    {id: "2415051", kanji: "布施　佑斗", kana: "ﾌｾ ﾕｳﾄ"},
+    {id: "2415052", kanji: "古橋　美優", kana: "ﾌﾙﾊｼ ﾐﾕ"},
+    {id: "2415054", kanji: "松浦　悠貴", kana: "ﾏﾂｳﾗ ﾊﾙｷ"}
+  ]},
+  10: {members: [
+    {id: "2415055", kanji: "松下　快斗", kana: "ﾏﾂｼﾀ ｶｲﾄ"},
+    {id: "2415057", kanji: "水口　穂珂", kana: "ﾐｽﾞｸﾞﾁ ﾎﾉｶ"},
+    {id: "2415058", kanji: "水野　舟馬", kana: "ﾐｽﾞﾉ ｼｭｳﾏ"},
+    {id: "2415059", kanji: "三好　諒青", kana: "ﾐﾖｼ ﾘｮｳｾｲ"},
+    {id: "2415060", kanji: "宗像　美咲希", kana: "ﾑﾅｶﾀ ﾐｻｷ"}
+  ]},
+  11: {members: [
+    {id: "2415061", kanji: "村松　愛咲", kana: "ﾑﾗﾏﾂ ｱｲｻ"},
+    {id: "2415062", kanji: "安本　桜太郎", kana: "ﾔｽﾓﾄ ｵｳﾀﾛｳ"},
+    {id: "2415063", kanji: "山口　來輝", kana: "ﾔﾏｸﾞﾁ ﾗｲｷ"},
+    {id: "2415065", kanji: "山中　陽", kana: "ﾔﾏﾅｶ ﾋﾅﾀ"},
+    {id: "2415066", kanji: "山本　佳奈", kana: "ﾔﾏﾓﾄ ｶﾅ"}
+  ]},
+  12: {members: [
+    {id: "2415068", kanji: "吉澤　紗穂", kana: "ﾖｼｻﾞﾜ ｻﾎ"},
+    {id: "2415069", kanji: "吉田　莉彩", kana: "ﾖｼﾀﾞ ﾘｻ"},
+    {id: "2415070", kanji: "渡邉　海晴", kana: "ﾜﾀﾅﾍﾞ ｶｲｾｲ"},
+    {id: "2415071", kanji: "堀　司", kana: "ﾎﾘ ﾂｶｻ"},
+    {id: "2415072", kanji: "HSU MYINT MYAT PHYOE", kana: "ｽ ﾐｯ ﾐｬ ﾋﾟｮｰ"}
+  ]}
+};
+
+// All students for random picker
+const students = [
+  {id: "2315012", kanji: "小島　千怜", kana: "ｵｼﾞﾏ ﾁｻﾄ"},
+  {id: "2315038", kanji: "増田　和人", kana: "ﾏｽﾀﾞ ｶｽﾞﾄ"},
+  {id: "2415001", kanji: "葭田　奏斗", kana: "ｱｼﾀﾞ ｶﾅﾄ"},
+  {id: "2415002", kanji: "渥美　太雅", kana: "ｱﾂﾐ ﾀｲｶﾞ"},
+  {id: "2415004", kanji: "泉　凪紗", kana: "ｲｽﾞﾐ ﾅｷﾞｻ"},
+  {id: "2415007", kanji: "伊藤　優希", kana: "ｲﾄｳ ﾕｳｷ"},
+  {id: "2415008", kanji: "伊藤　吏都", kana: "ｲﾄｳ ﾘﾂ"},
+  {id: "2415009", kanji: "今井　理人", kana: "ｲﾏｲ ﾏｻﾄ"},
+  {id: "2415010", kanji: "植田　碧羽", kana: "ｳｴﾀ ｱｵﾊﾞ"},
+  {id: "2415011", kanji: "植山　頼世", kana: "ｳｴﾔﾏ ﾗｲｾ"},
+  {id: "2415013", kanji: "大石　育実", kana: "ｵｵｲｼ ｲｸﾐ"},
+  {id: "2415014", kanji: "大石　悠月", kana: "ｵｵｲｼ ﾕﾂﾞｷ"},
+  {id: "2415015", kanji: "大石　椋太", kana: "ｵｵｲｼ ﾘｮｳﾀ"},
+  {id: "2415016", kanji: "太田　七瑚", kana: "ｵｵﾀ ﾅｺ"},
+  {id: "2415017", kanji: "大野　瑞芭", kana: "ｵｵﾉ ﾐｽﾞﾊ"},
+  {id: "2415018", kanji: "勝亦　仁南", kana: "ｶﾂﾏﾀ ﾆﾅ"},
+  {id: "2415019", kanji: "川畑　美友", kana: "ｶﾜﾊﾞﾀ ﾐﾕ"},
+  {id: "2415020", kanji: "喜久川　幸凛", kana: "ｷｸｶﾞﾜ ｺｳﾘﾝ"},
+  {id: "2415024", kanji: "杉山　秀響", kana: "ｽｷﾞﾔﾏ ｼｭｳﾄ"},
+  {id: "2415025", kanji: "杉山　凌大", kana: "ｽｷﾞﾔﾏ ﾘｮｳﾀ"},
+  {id: "2415026", kanji: "鈴木　遥紀", kana: "ｽｽﾞｷ ﾊﾙｷ"},
+  {id: "2415027", kanji: "鈴木　優奈", kana: "ｽｽﾞｷ ﾕｳﾅ"},
+  {id: "2415028", kanji: "鈴木　稜河", kana: "ｽｽﾞｷ ﾘｮｳｶﾞ"},
+  {id: "2415029", kanji: "高岡　力", kana: "ﾀｶｵｶ ﾘｷ"},
+  {id: "2415030", kanji: "髙野　剣矢", kana: "ﾀｶﾉ ｹﾝﾔ"},
+  {id: "2415031", kanji: "竹内　貴紀", kana: "ﾀｹｳﾁ ﾀｶﾉﾘ"},
+  {id: "2415032", kanji: "田澤　理夏", kana: "ﾀｻﾞﾜ ﾘｶ"},
+  {id: "2415033", kanji: "橘　寧々", kana: "ﾀﾁﾊﾞﾅ ﾈﾈ"},
+  {id: "2415034", kanji: "田中　琢満", kana: "ﾀﾅｶ ﾀｸﾐ"},
+  {id: "2415035", kanji: "廣瀬　千恵", kana: "ﾋﾛｾ ﾁｴ"},
+  {id: "2415039", kanji: "寺田　和真", kana: "ﾃﾗﾀﾞ ｶｽﾞﾏ"},
+  {id: "2415040", kanji: "戸塚　結依", kana: "ﾄﾂﾞｶ ﾕｲ"},
+  {id: "2415041", kanji: "長沼　佳那", kana: "ﾅｶﾞﾇﾏ ｶﾅ"},
+  {id: "2415042", kanji: "名倉　一輝", kana: "ﾅｸﾞﾗ ｶｽﾞｷ"},
+  {id: "2415043", kanji: "成瀬　玲那", kana: "ﾅﾙｾ ﾚﾅ"},
+  {id: "2415044", kanji: "西尾　藍花", kana: "ﾆｼｵ ｱｲｶ"},
+  {id: "2415045", kanji: "西村　桜", kana: "ﾆｼﾑﾗ ｻｸﾗ"},
+  {id: "2415046", kanji: "野尻　隼", kana: "ﾉｼﾞﾘ ｼｭﾝ"},
+  {id: "2415047", kanji: "野村　遙", kana: "ﾉﾑﾗ ﾊﾙ"},
+  {id: "2415048", kanji: "春山　稜登", kana: "ﾊﾙﾔﾏ ﾘｮｳﾄ"},
+  {id: "2415049", kanji: "蛭川　太暉", kana: "ﾋﾙｶﾜ ﾀｲｷ"},
+  {id: "2415050", kanji: "藤江　倖大", kana: "ﾌｼﾞｴ ｺｳﾀ"},
+  {id: "2415051", kanji: "布施　佑斗", kana: "ﾌｾ ﾕｳﾄ"},
+  {id: "2415052", kanji: "古橋　美優", kana: "ﾌﾙﾊｼ ﾐﾕ"},
+  {id: "2415054", kanji: "松浦　悠貴", kana: "ﾏﾂｳﾗ ﾊﾙｷ"},
+  {id: "2415055", kanji: "松下　快斗", kana: "ﾏﾂｼﾀ ｶｲﾄ"},
+  {id: "2415057", kanji: "水口　穂珂", kana: "ﾐｽﾞｸﾞﾁ ﾎﾉｶ"},
+  {id: "2415058", kanji: "水野　舟馬", kana: "ﾐｽﾞﾉ ｼｭｳﾏ"},
+  {id: "2415059", kanji: "三好　諒青", kana: "ﾐﾖｼ ﾘｮｳｾｲ"},
+  {id: "2415060", kanji: "宗像　美咲希", kana: "ﾑﾅｶﾀ ﾐｻｷ"},
+  {id: "2415061", kanji: "村松　愛咲", kana: "ﾑﾗﾏﾂ ｱｲｻ"},
+  {id: "2415062", kanji: "安本　桜太郎", kana: "ﾔｽﾓﾄ ｵｳﾀﾛｳ"},
+  {id: "2415063", kanji: "山口　來輝", kana: "ﾔﾏｸﾞﾁ ﾗｲｷ"},
+  {id: "2415065", kanji: "山中　陽", kana: "ﾔﾏﾅｶ ﾋﾅﾀ"},
+  {id: "2415066", kanji: "山本　佳奈", kana: "ﾔﾏﾓﾄ ｶﾅ"},
+  {id: "2415068", kanji: "吉澤　紗穂", kana: "ﾖｼｻﾞﾜ ｻﾎ"},
+  {id: "2415069", kanji: "吉田　莉彩", kana: "ﾖｼﾀﾞ ﾘｻ"},
+  {id: "2415070", kanji: "渡邉　海晴", kana: "ﾜﾀﾅﾍﾞ ｶｲｾｲ"},
+  {id: "2415071", kanji: "堀　司", kana: "ﾎﾘ ﾂｶｻ"},
+  {id: "2415072", kanji: "HSU MYINT MYAT PHYOE", kana: "ｽ ﾐｯ ﾐｬ ﾋﾟｮｰ"}
+];
+
+// Presentation rounds (12 groups → 12 rounds, starting from 第3回)
+const roundNames = ["第3回","第4回","第5回","第6回","第7回","第8回","第9回","第10回","第11回","第12回","第13回","第14回"];
+const NUM_GROUPS = 12;
+
+// --- Tab switching ---
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+}
+
+// --- Lottery ---
+let remaining = [];
+let drawn = [];
+let isSpinning = false;
+
+function initLottery() {
+  remaining = Array.from({length: NUM_GROUPS}, (_, i) => i + 1);
+  drawn = [];
+  renderGrid();
+  document.getElementById('slotDisplay').textContent = '?';
+  document.getElementById('slotLabel').textContent = 'ボタンを押して抽選開始';
+  document.getElementById('drawBtn').disabled = false;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < NUM_GROUPS; i++) {
+    const card = document.createElement('div');
+    const d = drawn[i];
+    card.className = 'result-card' + (d ? ' filled' : '');
+    card.innerHTML = `
+      <div class="result-order">${roundNames[i]}</div>
+      <div class="result-group">${d ? d + '班' : '---'}</div>
+      <div class="result-round">&nbsp;</div>
+    `;
+    if (d) {
+      card.style.cursor = 'pointer';
+      card.onclick = () => showGroupMembers(d);
+    }
+    grid.appendChild(card);
+  }
+}
+
+function drawNext() {
+  if (remaining.length === 0 || isSpinning) return;
+  isSpinning = true;
+  document.getElementById('drawBtn').disabled = true;
+
+  const display = document.getElementById('slotDisplay');
+  const label = document.getElementById('slotLabel');
+  label.textContent = `${roundNames[drawn.length]}の発表班を抽選中...`;
+
+  let count = 0;
+  const totalSpins = 20;
+  const interval = setInterval(() => {
+    const rand = remaining[Math.floor(Math.random() * remaining.length)];
+    display.textContent = rand;
+    display.style.color = '#f59e0b';
+    count++;
+    if (count >= totalSpins) {
+      clearInterval(interval);
+      const idx = Math.floor(Math.random() * remaining.length);
+      const chosen = remaining.splice(idx, 1)[0];
+      drawn.push(chosen);
+      display.textContent = chosen;
+      display.style.color = '#10b981';
+      label.textContent = `${roundNames[drawn.length - 1]} → ${chosen}班`;
+      renderGrid();
+      isSpinning = false;
+      document.getElementById('drawBtn').disabled = remaining.length === 0;
+      if (remaining.length === 0) {
+        label.textContent = '全班の抽選が完了しました！';
+      }
+    }
+  }, 80);
+}
+
+function resetLottery() {
+  initLottery();
+}
+
+function showGroupMembers(groupNum) {
+  const g = groups[groupNum];
+  document.getElementById('modalTitle').textContent = `${groupNum}班のメンバー`;
+  document.getElementById('modalMembers').innerHTML = g.members.map(m =>
+    `<div class="modal-member"><span style="color:#60a5fa;min-width:80px">${m.id}</span><span>${m.kanji}</span><span style="color:#94a3b8;margin-left:8px">${m.kana}</span></div>`
+  ).join('');
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('show');
+  }
+}
+
+// --- Random Student ---
+let pickedHistory = [];
+
+function pickStudent() {
+  const available = students.filter(s => !pickedHistory.includes(s.id));
+  if (available.length === 0) {
+    pickedHistory = [];
+    return pickStudent();
+  }
+
+  const card = document.getElementById('studentCard');
+  card.classList.remove('reveal');
+  card.classList.add('spinning');
+
+  let count = 0;
+  const totalSpins = 15;
+  const interval = setInterval(() => {
+    const rand = students[Math.floor(Math.random() * students.length)];
+    card.innerHTML = `
+      <div class="student-number">${rand.id}</div>
+      <div class="student-kanji" style="font-size:${rand.kanji.length > 10 ? 36 : 56}px">${rand.kanji}</div>
+      <div class="student-kana">${rand.kana}</div>
+    `;
+    count++;
+    if (count >= totalSpins) {
+      clearInterval(interval);
+      const chosen = available[Math.floor(Math.random() * available.length)];
+      pickedHistory.push(chosen.id);
+      card.classList.remove('spinning');
+      card.classList.add('reveal');
+      card.innerHTML = `
+        <div class="student-number">${chosen.id}</div>
+        <div class="student-kanji" style="font-size:${chosen.kanji.length > 10 ? 36 : 56}px">${chosen.kanji}</div>
+        <div class="student-kana">${chosen.kana}</div>
+      `;
+      updateHistory();
+    }
+  }, 80);
+}
+
+function updateHistory() {
+  const section = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  const count = document.getElementById('remainingCount');
+  if (pickedHistory.length > 0) {
+    section.style.display = 'block';
+    list.innerHTML = pickedHistory.map(id => {
+      const s = students.find(st => st.id === id);
+      return `<span class="history-tag">${s.kanji}</span>`;
+    }).join('');
+  }
+  count.textContent = `残り: ${students.length - pickedHistory.length} / ${students.length} 名`;
+}
+
+function resetHistory() {
+  pickedHistory = [];
+  document.getElementById('historySection').style.display = 'none';
+  document.getElementById('remainingCount').textContent = '';
+  document.getElementById('studentCard').innerHTML = '<div class="student-placeholder">ボタンを押してください</div>';
+  document.getElementById('studentCard').classList.remove('reveal', 'spinning');
+}
+
+// Init
+initLottery();
+</script>
+</body>
+</html>
